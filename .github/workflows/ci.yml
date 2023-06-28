@@ -94,7 +94,7 @@ jobs:
         cd ../spdlog-macros
         cargo +nightly rustdoc --all-features --verbose -- -D warnings
 
-  check:
+  check-msrv:
     strategy:
       matrix:
         os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
@@ -112,10 +112,7 @@ jobs:
     - name: Avoid dev-dependencies
       run: |
         # Some dev-dependencies require a newer version of Rust, but it doesn't matter for MSRV check
-        # And the features they enable for their own dependencies may disrupt `cargo check` reporting obvious errors
         # This is a workaround for the cargo nightly option `-Z avoid-dev-deps`
         perl -pi -e 's/\[dev-dependencies]/[workaround-avoid-dev-deps]/g' ./spdlog/Cargo.toml
-    - name: Run check for core with Rust latest
-      run: cargo check --all-features --verbose
-    - name: Run check for core with Rust ${{ env.rust_minver }} (MSRV check)
+    - name: Check MSRV for core with Rust ${{ env.rust_minver }}
       run: cargo +${{ env.rust_minver }} check --all-features --verbose
