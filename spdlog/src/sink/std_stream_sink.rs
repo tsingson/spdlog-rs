@@ -174,19 +174,22 @@ impl Sink for StdStreamSink {
             }
             Ok(())
         })()
-        .map_err(Error::WriteRecord)?;
+        .map_err(|err: io::Error| Error::WriteRecord(err.into()))?;
 
         // stderr is not buffered, so we don't need to flush it.
         // https://doc.rust-lang.org/std/io/fn.stderr.html
         if let StdStreamDest::Stdout(_) = dest {
-            dest.flush().map_err(Error::FlushBuffer)?;
+            dest.flush().map_err(|err| Error::FlushBuffer(err.into()))?;
         }
 
         Ok(())
     }
 
     fn flush(&self) -> Result<()> {
-        self.dest.lock().flush().map_err(Error::FlushBuffer)
+        self.dest
+            .lock()
+            .flush()
+            .map_err(|err| Error::FlushBuffer(err.into()))
     }
 
     helper::common_impl!(@Sink: common_impl);

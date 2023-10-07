@@ -1,6 +1,7 @@
 //! Provides error types.
 
 use std::{
+    error::Error as StdError,
     fmt::{self, Display},
     io, result,
 };
@@ -29,14 +30,14 @@ pub enum Error {
     ///
     /// [`Sink`]: crate::sink::Sink
     #[error("write record error: {0}")]
-    WriteRecord(io::Error),
+    WriteRecord(Box<dyn StdError>),
 
     /// The variant returned by [`Sink`]s when an error occurs in flushing the
     /// buffer.
     ///
     /// [`Sink`]: crate::sink::Sink
     #[error("flush buffer error: {0}")]
-    FlushBuffer(io::Error),
+    FlushBuffer(Box<dyn StdError>),
 
     /// The variant returned by [`Sink`]s when an error occurs in creating a
     /// directory.
